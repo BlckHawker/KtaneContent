@@ -13380,6 +13380,100 @@ let parseData = [
 		]
 	},
 	{
+		moduleID: "periodicTable",
+		loggingTag: "Periodic Table",
+		matches: [
+			{
+				regex: /The chosen Button is (.+) \/ .+ \/ .+ and the colour is (.+)/,
+				handler: function (matches, module) {
+					const svg = $("<svg xmlns='http://www.w3.org/2000/svg' viewbox='-10 -10 1000 400'>").addClass("periodic-table");
+					const elements = ["Hydrogen", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".",".", ".", ".", ".", "Helium", 
+									  "Lithium", "Beryllium", ".", ".",".",".",".",".",".",".",".",".", "Boron", "Carbon", "Nitrogen", "Oxygen", "Fluorine", "Neon", 
+									  "Sodium", "Magnesium", ".", ".",".",".",".",".",".",".",".",".","Aluminum", "Silicon", "Phosphorus", "Sulfur", "Chlorine", "Argon", 
+									  "Potassium", "Calcium", "Scandium", "Titanium", "Vanadium", "Chromium", "Manganese", "Iron", "Cobalt", "Nickel", "Copper", "Zinc", "Gallium", "Germanium", "Arsenic", "Selenium", "Bromine", "Krypton", 
+									  "Rubidium", "Strontium", "Yttrium", "Zirconium", "Niobium", "Molybdenum", "Technetium", "Ruthenium", "Rhodium", "Palladium", "Silver", "Cadmium", "Indium", "Tin", "Antimony", "Tellurium", "Iodine", "Xenon", "Cesium", "Barium", "Lanthanum", 
+									  "Hafnium", "Tantalum", "Tungsten", "Rhenium", "Osmium", "Iridium", "Platinum", "Gold", "Mercury", "Thallium", "Lead", "Bismuth", "Polonium", "Astatine", "Radon", "Francium", "Radium", "Actinium", "Rutherfordium", "Dubnium", "Seaborgium", "Bohrium", "Hassium", "Meitnerium", "Darmstadtium", "Roentgenium", "Copernicium", "Nihonium", "Flerovium", "Moscovium", "Livermorium", "Tennessine", "Oganesson"];
+
+					const elements2 = ["Cerium", "Praseodymium", "Neodymium", "Promethium", "Samarium", "Europium", "Gadolinium", "Terbium", "Dysprosium", "Holmium", "Erbium", "Thulium", "Ytterbium", "Lutetium", "Thorium", "Protactinium", "Uranium", "Neptunium", "Plutonium", "Americium", "Curium", "Berkelium", "Californium", "Einsteinium", "Fermium", "Mendelevium", "Nobelium", "Lawrencium"];
+					let elementIndex = elements.indexOf(matches[1]);
+					const inTopRow = elementIndex !== -1;
+					if(!inTopRow) {
+						elementIndex = elements2.indexOf(matches[1]);
+					}
+
+					for (let row = 0; row < 7; row++) {
+						for (let col = 0; col < 18; col++) {
+							const ix = row * 18 + col;
+							const x = col * 49;
+							const y = row * 49;
+							const rect = $SVG("<rect>")
+								.attr("width", 50).attr("height", 50)
+								.attr("x", x).attr("y", y)
+								.appendTo(svg);
+							
+								if((row == 0 && col > 0 && col < 17) || 
+								   ((row == 1 || row == 2) && col > 1 && col < 12)) {
+									rect.addClass("periodic-table-invalid");
+								}
+
+								else if(col === 2 && (row == 5 || row == 6)) {
+									rect.addClass("periodic-table-special");
+
+									//todo fix this so the text actually appears. Or just delete it
+									if(row === 5) {
+										rect.text("*");
+									}
+
+									else {
+										rect.text("**");
+									}
+								}
+
+								else if(inTopRow && ix === elementIndex) {
+									console.log(matches[2].toLowerCase());
+									rect.addClass(`periodic-table-${matches[2].toLowerCase()}`);
+								}
+						}
+					}
+
+					module.push({ label: matches.input, nobullet: true, obj: svg });
+					return true;
+				}
+			},
+			{
+				regex: /----------------/,
+				handler(mathces, module) {
+					if(module.calculations) {
+						return true;
+					}
+
+					module.calculations = true;
+
+					module.dropdown = ["Wawa", []];
+
+					module.push(module.dropdown);
+
+					return true;
+				}
+			},
+			{
+				regex: /=/,
+				handler(matches, module) {
+					const input = matches.input;
+					if(input.includes("Ele + Sym + Num + But")) {
+						const atomicNumber = input.split("=")[1].trim();
+						//todo Add the name of the element
+						module.dropdown[0] = `Add the name of the element (${atomicNumber})`
+					}
+					module.dropdown[1].push(input);
+					return true;
+				}
+			},
+			{ regex: /.+/ }
+
+		]
+	},
+	{
 		moduleID: "spwizPerspectivePegs",
 		loggingTag: "Perspective Pegs",
 		matches: [

@@ -3255,6 +3255,45 @@ path.city-planning {
 			text-anchor: middle;
 			dominant-baseline: middle;
 		}
+
+/* Periodic Table */
+.periodic-table {
+	fill: white;
+	stroke: black;
+}
+
+.periodic-table-invalid {
+	fill: black;
+}
+
+.periodic-table-special {
+	fill: #635f58;
+	color: white;
+	text-anchor: middle;
+	dominant-baseline: middle;
+}
+
+.periodic-table-blue {
+	fill: #090ae3;
+}
+
+.periodic-table-orange {
+	fill: #fd9d00;
+}
+
+.periodic-table-grey {
+	fill: #736e66;
+}
+
+.periodic-table-yellow {
+	fill: #fdec00;
+}
+
+.periodic-table-red {
+	fill: red;
+}
+
+
 /* Playfair Cipher and Unfair Cipher */
 	table.playfair-cipher {
 		display: block;
