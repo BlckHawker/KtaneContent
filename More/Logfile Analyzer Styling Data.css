@@ -3257,13 +3257,13 @@ path.city-planning {
 		}
 
 /* Periodic Table */
+
+svg {
+	background-color: #000;
+}
 .periodic-table {
 	fill: white;
 	stroke: black;
-}
-
-.periodic-table-invalid {
-	fill: black;
 }
 
 .periodic-table-special {
@@ -3271,6 +3271,15 @@ path.city-planning {
 	color: white;
 	text-anchor: middle;
 	dominant-baseline: middle;
+}
+
+text.periodic-table {
+	fill: #ddd;
+	stroke: transparent;
+	font-size: 50px;
+	text-anchor: middle;
+	dominant-baseline: middle;
+
 }
 
 .periodic-table-blue {
@@ -3291,6 +3300,10 @@ path.city-planning {
 
 .periodic-table-red {
 	fill: red;
+}
+
+.periodic-table-green {
+	fill: #81ff00;
 }
 
 

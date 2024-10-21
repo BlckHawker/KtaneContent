@@ -13386,53 +13386,105 @@ let parseData = [
 			{
 				regex: /The chosen Button is (.+) \/ .+ \/ .+ and the colour is (.+)/,
 				handler: function (matches, module) {
-					const svg = $("<svg xmlns='http://www.w3.org/2000/svg' viewbox='-10 -10 1000 400'>").addClass("periodic-table");
+
+					const dimension = 49;
+					const makeText = (text, x, y) => {
+						return $SVG("<text>").addClass('periodic-table')
+						.attr("x", x + dimension / 2).attr("y", y + dimension / 1.2)
+						.text(text);
+					}
+
+					const makeRect = (x, y) => {
+						return $SVG("<rect>")
+						.attr("width", dimension + 1).attr("height", dimension + 1)
+						.attr("x", x).attr("y", y)
+					}
+					const svg = $("<svg xmlns='http://www.w3.org/2000/svg' viewbox='-10 -10 1000 550'>").addClass("periodic-table");
 					const elements = ["Hydrogen", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".",".", ".", ".", ".", "Helium", 
 									  "Lithium", "Beryllium", ".", ".",".",".",".",".",".",".",".",".", "Boron", "Carbon", "Nitrogen", "Oxygen", "Fluorine", "Neon", 
-									  "Sodium", "Magnesium", ".", ".",".",".",".",".",".",".",".",".","Aluminum", "Silicon", "Phosphorus", "Sulfur", "Chlorine", "Argon", 
+									  "Sodium", "Magnesium", ".", ".",".",".",".",".",".",".",".",".","Aluminum", "Silicon", "Phosphorus", "Sulphur", "Chlorine", "Argon", 
 									  "Potassium", "Calcium", "Scandium", "Titanium", "Vanadium", "Chromium", "Manganese", "Iron", "Cobalt", "Nickel", "Copper", "Zinc", "Gallium", "Germanium", "Arsenic", "Selenium", "Bromine", "Krypton", 
-									  "Rubidium", "Strontium", "Yttrium", "Zirconium", "Niobium", "Molybdenum", "Technetium", "Ruthenium", "Rhodium", "Palladium", "Silver", "Cadmium", "Indium", "Tin", "Antimony", "Tellurium", "Iodine", "Xenon", "Cesium", "Barium", "Lanthanum", 
-									  "Hafnium", "Tantalum", "Tungsten", "Rhenium", "Osmium", "Iridium", "Platinum", "Gold", "Mercury", "Thallium", "Lead", "Bismuth", "Polonium", "Astatine", "Radon", "Francium", "Radium", "Actinium", "Rutherfordium", "Dubnium", "Seaborgium", "Bohrium", "Hassium", "Meitnerium", "Darmstadtium", "Roentgenium", "Copernicium", "Nihonium", "Flerovium", "Moscovium", "Livermorium", "Tennessine", "Oganesson"];
+									  "Rubidium", "Strontium", "Yttrium", "Zirconium", "Niobium", "Molybdenum", "Technetium", "Ruthenium", "Rhodium", "Palladium", "Silver", "Cadmium", "Indium", "Tin", "Antimony", "Tellurium", "Iodine", "Xenon", "Caesium", "Barium", 
+									  ".", "Hafnium", "Tantalum", "Tungsten", "Rhenium", "Osmium", "Iridium", "Platinum", "Gold", "Mercury", "Thallium", "Lead", "Bismuth", "Polonium", "Astatine", "Radon", "Francium", "Radium", ".", "Rutherfordium", "Dubnium", "Seaborgium", "Bohrium", "Hassium", "Meitnerium", "Darmstadtium", "Roentgenium", "Copernicium", "Nihonium", "Flerovium", "Moscovium", "Livermorium", "Tennessine", "Oganesson"];
 
-					const elements2 = ["Cerium", "Praseodymium", "Neodymium", "Promethium", "Samarium", "Europium", "Gadolinium", "Terbium", "Dysprosium", "Holmium", "Erbium", "Thulium", "Ytterbium", "Lutetium", "Thorium", "Protactinium", "Uranium", "Neptunium", "Plutonium", "Americium", "Curium", "Berkelium", "Californium", "Einsteinium", "Fermium", "Mendelevium", "Nobelium", "Lawrencium"];
+					const elements2 = ["Lanthanum", "Cerium", "Praseodymium", "Neodymium", "Promethium", "Samarium", "Europium", "Gadolinium", "Terbium", "Dysprosium", "Holmium", "Erbium", "Thulium", "Ytterbium", "Lutetium", "Actinium", "Thorium", "Protactinium", "Uranium", "Neptunium", "Plutonium", "Americium", "Curium", "Berkelium", "Californium", "Einsteinium", "Fermium", "Mendelevium", "Nobelium", "Lawrencium"];
 					let elementIndex = elements.indexOf(matches[1]);
 					const inTopRow = elementIndex !== -1;
 					if(!inTopRow) {
 						elementIndex = elements2.indexOf(matches[1]);
 					}
 
+					if(matches[1] == "Ytterbium") {
+						console.log(elementIndex);
+					}
+
+					
+
+					//elements 1
 					for (let row = 0; row < 7; row++) {
 						for (let col = 0; col < 18; col++) {
+							if((row == 0 && col > 0 && col < 17) || 
+							  ((row == 1 || row == 2) && col > 1 && col < 12)) {
+								continue;
+							}
 							const ix = row * 18 + col;
-							const x = col * 49;
-							const y = row * 49;
-							const rect = $SVG("<rect>")
-								.attr("width", 50).attr("height", 50)
-								.attr("x", x).attr("y", y)
-								.appendTo(svg);
+							const x = col * dimension;
+							const y = row * dimension;
+							const rect = makeRect(x, y);
+							rect.appendTo(svg);
 							
-								if((row == 0 && col > 0 && col < 17) || 
-								   ((row == 1 || row == 2) && col > 1 && col < 12)) {
-									rect.addClass("periodic-table-invalid");
+							
+
+							if(col === 2 && (row == 5 || row == 6)) {
+								rect.addClass("periodic-table-special");
+
+								let text = '**';
+								if(row === 5) {
+									text = '*';
 								}
 
-								else if(col === 2 && (row == 5 || row == 6)) {
-									rect.addClass("periodic-table-special");
+								makeText(text, x, y).appendTo(svg);
+							}
 
-									//todo fix this so the text actually appears. Or just delete it
-									if(row === 5) {
-										rect.text("*");
-									}
+							else if(inTopRow && ix === elementIndex) {
+								rect.addClass(`periodic-table-${matches[2].toLowerCase()}`);
+							}
+						}
+					}
 
-									else {
-										rect.text("**");
-									}
+					const RowOffset = 8;
+					const columnOffset = 2;
+					//elements 2
+					for(let row = RowOffset; row < RowOffset + 2; row++) {
+						for(let col = columnOffset; col < columnOffset + 15; col++) {
+							let ix = (row - RowOffset) * 15 + (col - columnOffset);
+							//jank solution, but idk why this is offset to the right if it's not there
+							// if(matches[1] == "Ytterbium") {
+							// 	ix--;
+							// }
+							const x = col * dimension;
+							const y = row * dimension;
+
+
+							const rect = makeRect(x, y)
+							rect.appendTo(svg);
+							
+							
+
+							if(col == 0 + columnOffset) {
+								rect.addClass("periodic-table-special");
+								let text = '*';
+
+								if(row == 1 + RowOffset) {
+									text = '**';
 								}
 
-								else if(inTopRow && ix === elementIndex) {
-									console.log(matches[2].toLowerCase());
-									rect.addClass(`periodic-table-${matches[2].toLowerCase()}`);
-								}
+								makeText(text, x, y).appendTo(svg);
+							}
+
+							else if(!inTopRow && ix == elementIndex + 1) {
+								rect.addClass(`periodic-table-${matches[2].toLowerCase()}`);
+							}
 						}
 					}
 
@@ -13442,17 +13494,14 @@ let parseData = [
 			},
 			{
 				regex: /----------------/,
-				handler(mathces, module) {
+				handler(_, module) {
 					if(module.calculations) {
 						return true;
 					}
 
 					module.calculations = true;
-
-					module.dropdown = ["Wawa", []];
-
+					module.dropdown = ["", []];
 					module.push(module.dropdown);
-
 					return true;
 				}
 			},
