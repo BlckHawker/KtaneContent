@@ -15583,7 +15583,10 @@ let parseData = [
 						module.halfDimension = module.dimension / 2;
 						module.stageDropdowns = [];
 						module.attemptNum = 1;
+						module.atteptDropdown = [`Attempt ${module.attemptNum}`, []];
+						module.push(module.atteptDropdown);
 						module.push(`Attempt ${module.attemptNum}`)
+
 						module.makeRect = (x, y, color) => {
 							return $SVG("<rect>")
 								.attr("width", module.dimension)
@@ -15673,7 +15676,7 @@ let parseData = [
 
 					const stageColorX = 0;
 					const stageColorY = 0
-					const svg = $(`<svg xmlns='http://www.w3.org/2000/svg' viewbox='-10 -10 400 70'>`);
+					const svg = $SVG(`<svg xmlns='http://www.w3.org/2000/svg' viewbox='-10 -10 400 70'>`);
 					module.makeRect(stageColorX, stageColorY, screenColorObj.backgroundColor).appendTo(svg);
 					module.makeText(stageColorX + 2, stageColorY + module.dimension + colorTextYOffset, screenColorObj.name.toUpperCase()[0] + screenColorObj.name.substring(1).toLowerCase(), colorTextSize, screenColorObj.needsWhiteText).appendTo(svg);
 					module.makeText(stageColorX + module.halfDimension - 10, stageColorY + module.halfDimension, screenColorMixture, undefined, screenColorObj.needsWhiteText).appendTo(svg);
@@ -15681,6 +15684,14 @@ let parseData = [
 					const solutionLines = readTaggedLines(4).slice(1).map(arr => arr.split(' ')).flatMap(arr => arr)
 					module.stageDropdowns[currentStage - 1][1].push({ obj: gridSvg, label: "Grid:", nobullet: true }, { obj: svg, label: "Stage Color:", nobullet: true }, { obj: module.makeSubmissionGrid(solutionLines), label: "Solution:", nobullet: true });
 					module.push(module.stageDropdowns[currentStage - 1]);
+
+					let test = ["Test Attempt", []];
+					test[1].push(module.stageDropdowns[currentStage - 1])
+					module.push(test);
+					
+					module.atteptDropdown[1].push(module.stageDropdowns[currentStage - 1]);
+				
+
 					return true;
 				}
 			},
@@ -15692,8 +15703,10 @@ let parseData = [
 					module.stageDropdowns[module.currentStage - 1][1].push({ obj: module.makeSubmissionGrid(gridLines), label: "Incorrectly submitted:", nobullet: true })
 					module.stageDropdowns = [];
 					module.attemptNum += 1;
+					module.atteptDropdown = [`Attempt ${module.attemptNum}`, []];
 					module.currentStage = 1;
 					module.push(`Attempt ${module.attemptNum}`)
+					module.push(module.atteptDropdown);
 					return true;
 				}
 			},
