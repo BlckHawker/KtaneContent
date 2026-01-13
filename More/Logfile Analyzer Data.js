@@ -12223,6 +12223,79 @@ let parseData = [
 		]
 	},
 	{
+		moduleID: "R4YMultiColoredSwitches",
+		loggingTag: "Multicolored Switches",
+		matches: [
+			{
+				regex: /The LED states from top to bottom and in red, green, blue order should be:/,
+				handler: function (matches, module) {
+					const getRGBMixture = (red, green, blue) => {
+							if(red && green && blue) return "W";
+							if(red && green && !blue) return "Y";
+							if(red && !green && blue) return "M";
+							if(!red && green && blue) return "C";
+							if(red && !green && !blue) return "R";
+							if(!red && green && !blue) return "G";
+							if(!red && !green && blue) return "B";
+							return "K";
+						}
+					const displayDropdown = ["Display", [["LEDs", []], ["Switches", []]]];
+					const ledDropdown = displayDropdown[1][0];
+					const switchDropdown = displayDropdown[1][1];
+
+					
+
+					for(let i = 0; i < 4; i++) {
+						const lines = readTaggedLines(3);
+						let section = "";
+						const colorRegex = /The (red|green|blue) set of the (first|second) flash of the (first|second) row of LEDs should be,((?:▲|▼){5})/
+						const redValues = [];
+						const greenValues = [];
+						const blueValues = [];
+						let sectionDropdown;
+						for(let j = 0; j < lines.length; j++) {
+							const match = lines[j].match(colorRegex);
+							for(let k = 0; k < match[4].length; k++) {
+								switch(j) {
+									case 0:
+									redValues.push(match[4][k] === '▲');
+									break;
+									case 1:
+									greenValues.push(match[4][k] == '▲');
+									break;
+									case 2:
+									blueValues.push(match[4][k] == '▲');
+									break;
+								}
+							}
+							
+							if(j == 0) {
+								section = match[2] == "first" && match[3] == "first" ? `Flash of first row with LED being on: . (Set A)` :
+										match[2] == "second" && match[3] == "first" ? `Flash of first row with LED being off: . (Set B)` :
+										match[2] == "first" && match[3] == "second" ? `Flash of second row with LED being on: . (Set C)` :
+									  												`Flash of second row with LED being off: . (Set D)`;
+								sectionDropdown = [section, []];
+								ledDropdown[1].push(sectionDropdown);
+							
+							}
+							
+							const a = `The ${match[1]} state is ${match[4]}`;
+							sectionDropdown[1].push(a)
+						}
+						
+						const colorStr = redValues.map((_, i) => getRGBMixture(redValues[i], greenValues[i], blueValues[i])).join("");
+						sectionDropdown[0] = sectionDropdown[0].replace('.', `: ${colorStr}`);
+
+						// displayDropdown[1][].push(logs)
+					}
+					module.push(displayDropdown);
+					return true;
+				}
+			},
+			{ regex: /.+/ }
+		]
+	},
+	{
 		moduleID: "murder",
 		loggingTag: "Murder",
 		matches: [
