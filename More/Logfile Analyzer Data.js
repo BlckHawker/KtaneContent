@@ -1080,6 +1080,33 @@ let parseData = [
 		displayName: "3D Tunnels",
 		loggingTag: "3d Tunnels",
 		moduleID: "3dTunnels",
+		matches: [
+			// todo get the symbols to appear as a grid
+			{
+				regex: /Using rule seed: \d+/,
+				handler: function (matches, module) {
+					module.push(matches[0])
+					ruleSeedString = "ghidefabcpqrmnojklyz.vwxstu"
+					let grid = $("<div id='tunnels'>")
+					// todo make the edges
+					const transforms = ["translate3d( 0cm,  0cm, -10cm)"];
+					for(let i = 0; i < 54; i++) {
+						$("<div class='tunnel' style='transform: translate3d( 0cm,  0cm, -10cm)'></div>").appendTo(grid);;
+					}
+					console.log(grid)
+					module.push({obj: grid})
+					return true;
+				}
+			},
+			
+			// todo highlight Identified nodes
+			// todo highlight target nodes
+			// todo highlight starting node and position
+			// todo show node identified correctly
+			// todo show action log on  strike
+			// todo add rule seed
+			{ regex: /.+/ }
+		]
 	},
 	{
 		loggingTag: "3N+1",
