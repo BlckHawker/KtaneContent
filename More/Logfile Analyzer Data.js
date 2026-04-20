@@ -10978,6 +10978,65 @@ let parseData = [
 			{ regex: /.+/ }
 		]
 	},
+{
+		moduleID: "lyingButtons",
+		loggingTag: "Lying Buttons",
+		matches: [
+			{
+				regex: /TL (RED|YELLOW|BLUE) (.+):.+/,
+				handler: function (matches, module) {
+					linen--;
+					// read the lines for each cell
+					const lines = readTaggedLines(9);
+					const regex = /(?:[TMB][LMR]) (RED|YELLOW|BLUE) (.+):.+/;
+
+
+					// Make the base of the svg
+					const svg = $(`<svg xmlns='http://www.w3.org/2000/svg' viewbox='-10 -10 300 300'>`)
+
+					// dimensions of the rectangle that says the rule
+					const haederDimensions = { width: 60, height: 30 };
+
+					//diensions of the gap between information for each cell 
+					const gapDimensions = { width: 10, height: 10 };
+
+					for(let i = 0; i < lines.length; i++) {
+						const row = Math.floor(i / 3);
+						const col = i % 3;
+
+						const match = lines[i].match(regex);
+
+						const clue = match[2];
+
+						// draw the header
+						$SVG(`<rect>`)
+							.attr("x", col * (haederDimensions.width + gapDimensions.width))
+							.attr("y", row * (haederDimensions.height + gapDimensions.height))
+							.attr("width", haederDimensions.width)
+							.attr("height", haederDimensions.height)
+							.attr("fill", "black")
+							.appendTo(svg);
+
+
+						// draw the information for said header
+
+						// draw a grid with a specifc cell colored in white
+						if(clue.match(/^[A-C][1-3]/))
+						{
+							
+						}
+						
+
+					}
+
+					module.push({label: "svg in progress", obj: svg});
+
+					return true;
+				}
+			},
+			{ regex: /.+/ }
+		]
+	},
 	{
 		moduleID: "MafiaModule",
 		loggingTag: "Mafia",
