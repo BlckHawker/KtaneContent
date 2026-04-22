@@ -11016,21 +11016,59 @@ let parseData = [
 						const rightSide = match[2].slice(5, 10);
 						const operator = match[2].slice(10);
 
-						console.log(leftSide);
-						console.log(rightSide)
-						console.log(operator)
+						//draw the information for said header
+
+						//todo draw the left of the equation
+
+						//show the individual cell 
+						if(clue.match(/[A-C][1-3]LLL/))
+						{
+							$('<img>')
+							.addClass("lying-button")
+							.attr('src', `../HTML/img/Lying Buttons/LyingButtons${clue.slice(0,2)}.png`)
+							.appendTo(cellDiv);
+						}
+						else
+						{
+							$('<img>')
+							.addClass("lying-button")
+							.attr('src', `../HTML/img/Lying Buttons/LyingButtonsNLL.png`)
+							.appendTo(cellDiv);
+						}
+
+						//todo draw the operator
+
+						const operatorMap = {
+							"EQ": "=",
+							"GT": ">",
+							"LT": "≥",
+							"FR": "≤",
+						}
+
+						$(`<p>${operatorMap[operator]}</p>`)
+						.addClass("lying-button")
+						.appendTo(cellDiv);
 
 
-
-						// draw the information for said header
-						// todo draw the left of the equation
-						$('<img>').attr('src', `../HTML/img/Lying Buttons/LyingButtonsNLL.png`).appendTo(cellDiv);
-
-						//draw the operator
-						$('<img>').attr('src', `../HTML/img/Lying Buttons/LyingButtons${operator}.png`).appendTo(cellDiv);
 
 						// todo draw the right of the equation
-						$('<img>').attr('src', `../HTML/img/Lying Buttons/LyingButtonsNLL.png`).appendTo(cellDiv);
+
+						//todo show the number
+						if(rightSide.slice(-1).match(/\d/)) 
+						{
+							$(`<p>${rightSide.slice(-1)}</p>`)
+							.addClass("lying-button")
+							.appendTo(cellDiv);
+						}
+						
+						else 
+						{
+							$('<img>')
+							.addClass("lying-button")
+							.attr('src', `../HTML/img/Lying Buttons/LyingButtonsNLL.png`)
+							.appendTo(cellDiv);
+						}
+							
 						
 
 					}
@@ -19548,7 +19586,6 @@ let parseData = [
 					module.encrypted += matches[2];
 					if(module.words.includes(module.decrypted)) {
 						module.push(`Decrypted word: ${module.decrypted}`);
-						console.log(module.answers)
 						for(let a of module.answers) {
 							module.push(a)
 						}
@@ -20246,7 +20283,6 @@ let parseData = [
 
 					let div = $('<div>').addClass("symbolic-password").addClass("symbolic-password-big");
 
-					console.log(module.position)
 					for(let i = 0; i < grid.length; i++) {
 						let symbol = grid[i];
 						const x = i % 7;

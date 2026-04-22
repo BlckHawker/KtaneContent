@@ -2552,8 +2552,26 @@ path.city-planning {
 	}
 
 	div.lying-button-cell {
-		display: flex;
-		justify-content: center;
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		grid-template-rows: repeat(2, 1fr);
+		place-items: center;
+	}
+
+	img.lying-button {
+		width: 40px;
+		height: 40px;
+	}
+
+	img.lying-button-operator {
+		width: 30px;
+		height: 30px;
+	}
+
+	p.lying-button {
+		font-size: 45px;
+		font-family: "joystix monospace";
+		margin: 0;
 	}
 
 /* Mahjong Quiz (Easy, Hard, and Scrambled) */

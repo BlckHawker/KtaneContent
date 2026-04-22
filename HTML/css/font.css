@@ -671,6 +671,12 @@
     src: local("DS-DIGIB"), url(../font/DS-DIGIB.TTF)
 }
 
+/* Lying Buttons LFA */
+@font-face {
+    font-family: "joystix monospace";
+    src: local("joystix monospace"), url(../font/joystix\ monospace.otf)
+}
+
 @font-face {
     font-family: 'Fans';
     font-weight: 400;
