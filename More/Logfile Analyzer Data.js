@@ -10988,7 +10988,7 @@ let parseData = [
 					linen--;
 					// read the lines for each cell
 					const lines = readTaggedLines(9);
-					const regex = /(?:[TMB][LMR]) (RED|YELLOW|BLUE) (.+):.+/;
+					const regex = /(?:[TMB][LMR]) (RED|YELLOW|BLUE) (.+):.+\((Lying|Honest)\)/;
 
 					const parentDiv = $(`<div>`).addClass("lying-button-parent");
 
@@ -11053,7 +11053,7 @@ let parseData = [
 
 						// todo draw the right of the equation
 
-						//todo show the number
+						//show the number
 						if(rightSide.slice(-1).match(/\d/)) 
 						{
 							$(`<p>${rightSide.slice(-1)}</p>`)
@@ -11068,14 +11068,28 @@ let parseData = [
 							.attr('src', `../HTML/img/Lying Buttons/LyingButtonsNLL.png`)
 							.appendTo(cellDiv);
 						}
-							
+
+
+						//draw the button
+						$('<img>')
+						.addClass("lying-button")
+						.attr('src', `../HTML/img/Lying Buttons/LyingButtonsN${match[1][0]}L.png`)
+						.appendTo(cellDiv);
+
+						//say if lying or honest
+						$(`<p>${match[3]}</p>`)
+						.addClass("lying-button-truth")
+						.appendTo(cellDiv);
+						
+						//todo say if safe or unsafe
+						$(`<p>${match[3] == "Honest" ? "Safe" : "Unsafe"}</p>`)
+						.addClass("lying-button-truth")
+						.appendTo(cellDiv);
 						
 
 					}
 
 					module.push({label: "div in progress", obj: parentDiv});
-					module.push({label: "svg in progress", obj: svg});
-
 					return true;
 				}
 			},

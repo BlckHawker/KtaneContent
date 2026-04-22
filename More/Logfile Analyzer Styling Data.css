@@ -2573,6 +2573,11 @@ path.city-planning {
 		font-family: "joystix monospace";
 		margin: 0;
 	}
+	p.lying-button-truth {
+		font-size: 10px;
+		font-family: "joystix monospace";
+		margin: 0;
+	}
 
 /* Mahjong Quiz (Easy, Hard, and Scrambled) */
 	img.mahjong-quiz-tile {
