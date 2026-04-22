@@ -10992,16 +10992,6 @@ let parseData = [
 
 					const parentDiv = $(`<div>`).addClass("lying-button-parent");
 
-
-					// Make the base of the svg
-					const svg = $(`<svg xmlns='http://www.w3.org/2000/svg' viewbox='-10 -10 300 300'>`)
-
-					// dimensions of the rectangle that says the rule
-					const haederDimensions = { width: 60, height: 30 };
-
-					//diensions of the gap between information for each cell 
-					const gapDimensions = { width: 10, height: 10 };
-
 					for(let i = 0; i < lines.length; i++) {
 
 						// todo make a cell div
@@ -11027,6 +11017,29 @@ let parseData = [
 							.addClass("lying-button")
 							.attr('src', `../HTML/img/Lying Buttons/LyingButtons${clue.slice(0,2)}.png`)
 							.appendTo(cellDiv);
+						}
+						//todo show column
+						else if(clue.match(/[A-C]CLLL/))
+						{
+							$('<img>')
+							.addClass("lying-button")
+							.attr('src', `../HTML/img/Lying Buttons/LyingButtons${clue.slice(0,2)}.png`)
+							.appendTo(cellDiv);							
+						}
+						//todo number of liars in columns
+						else if (clue.startsWith("GDDCL"))
+						{
+							$('<img>')
+							.addClass("lying-button")
+							.attr('src', `../HTML/img/Lying Buttons/LyingButtonsNDC.png`)
+							.appendTo(cellDiv);							
+						}
+						else if(clue.startsWith("GDAJL"))
+						{
+							$('<img>')
+							.addClass("lying-button")
+							.attr('src', `../HTML/img/Lying Buttons/LyingButtonsNAL.png`)
+							.appendTo(cellDiv);									
 						}
 						else
 						{
