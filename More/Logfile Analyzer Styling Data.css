@@ -2544,6 +2544,18 @@ path.city-planning {
 		.dark-mode svg.logic-hex-table path.logic-hex-divider {
 			stroke: #ddd;
 		}
+/* Lying Buttons */
+	div.lying-button-parent {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		grid-template-rows: repeat(3, 1fr);
+	}
+
+	div.lying-button-cell {
+		display: flex;
+		justify-content: center;
+	}
+
 /* Mahjong Quiz (Easy, Hard, and Scrambled) */
 	img.mahjong-quiz-tile {
 		height: 30px;

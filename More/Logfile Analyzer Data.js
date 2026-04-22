@@ -10990,6 +10990,8 @@ let parseData = [
 					const lines = readTaggedLines(9);
 					const regex = /(?:[TMB][LMR]) (RED|YELLOW|BLUE) (.+):.+/;
 
+					const parentDiv = $(`<div>`).addClass("lying-button-parent");
+
 
 					// Make the base of the svg
 					const svg = $(`<svg xmlns='http://www.w3.org/2000/svg' viewbox='-10 -10 300 300'>`)
@@ -11001,34 +11003,39 @@ let parseData = [
 					const gapDimensions = { width: 10, height: 10 };
 
 					for(let i = 0; i < lines.length; i++) {
+
+						// todo make a cell div
+						const cellDiv = $(`<div>`).addClass("lying-button-cell").appendTo(parentDiv);
 						const row = Math.floor(i / 3);
 						const col = i % 3;
 
 						const match = lines[i].match(regex);
 
 						const clue = match[2];
+						const leftSide = match[2].slice(0, 5);
+						const rightSide = match[2].slice(5, 10);
+						const operator = match[2].slice(10);
 
-						// draw the header
-						$SVG(`<rect>`)
-							.attr("x", col * (haederDimensions.width + gapDimensions.width))
-							.attr("y", row * (haederDimensions.height + gapDimensions.height))
-							.attr("width", haederDimensions.width)
-							.attr("height", haederDimensions.height)
-							.attr("fill", "black")
-							.appendTo(svg);
+						console.log(leftSide);
+						console.log(rightSide)
+						console.log(operator)
+
 
 
 						// draw the information for said header
+						// todo draw the left of the equation
+						$('<img>').attr('src', `../HTML/img/Lying Buttons/LyingButtonsNLL.png`).appendTo(cellDiv);
 
-						// draw a grid with a specifc cell colored in white
-						if(clue.match(/^[A-C][1-3]/))
-						{
-							
-						}
+						//draw the operator
+						$('<img>').attr('src', `../HTML/img/Lying Buttons/LyingButtons${operator}.png`).appendTo(cellDiv);
+
+						// todo draw the right of the equation
+						$('<img>').attr('src', `../HTML/img/Lying Buttons/LyingButtonsNLL.png`).appendTo(cellDiv);
 						
 
 					}
 
+					module.push({label: "div in progress", obj: parentDiv});
 					module.push({label: "svg in progress", obj: svg});
 
 					return true;
