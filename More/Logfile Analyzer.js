@@ -1350,12 +1350,15 @@ function GetBomb() {
     return bombgroup || lastBombGroup || bomb;
 }
 
-//Adds a slide shows of objects that the user can click through
-// @params pages: An array of objects with the following properties:
-//      label: The label to show above the object
-//      obj: An object to show in the bottom div (can be a jQuery object, svg, etc.)
-// @params module: The module obj used to tell which specific module we are in. Helps to deal with duplicates of the same module
-// @params loopDisplays: If true, allows the user to wrap around from the last display to the first and vice versa
+//
+
+
+/**
+ * Adds a slide shows of objects that the user can click through
+ * @param {Array<{label: string, obj: any}>} pages: Array of page objects to display. Label being the label to show above the object, and obj being the object to show in the bottom div (can be a jQuery object, svg, etc.)
+ * @params module: The module obj used to tell which specific module we are in. Helps to deal with duplicates of the same module
+ * @params loopDisplays: If true, allows the user to wrap around from the last display to the first and vice versa. Default value is false
+ */
 function makeCycleableDisplays(pages, module, loopDisplays = false) {
 
     const topDiv = $('<div>').addClass("cyclable-disp-top");
