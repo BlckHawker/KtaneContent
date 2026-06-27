@@ -23843,6 +23843,191 @@ let parseData = [
 		]
 	},
 	{
+		moduleID: "wanderlust",
+		loggingTag: "Wanderlust",
+		matches: [
+			{
+				regex: /Starting in maze (\d+) at ([A-F][1-6])/,
+				handler: function (match, module) {
+
+					const dimension = 300;
+					const mazeLayout = [
+					[
+						["R","R*","D","","D","D*"],
+						["R","R","","RD","D*",""],
+						["","RD","D","D","RD*",""],
+						["R","D","","","RD",""],
+						["D","RD*","R","RD*","",""],
+						["*","","R","","R","*"]
+					],
+					[
+						["D","D","R","D*","D",""],
+						["R*","D*","R","","RD*",""],
+						["","RD","D","RD","D",""],
+						["R","D*","D","","R",""],
+						["","D","RD*","R","R",""],
+						["","R","","R","R*","*"]
+					],
+					[
+						["","D","","RD*","D",""],
+						["R","R*","R","","",""],
+						["RD*","R","RD","RD*","R","D*"],
+						["","D","RD","R*","D","D"],
+						["","R","","D","D",""],
+						["R","R*","","","R*",""]
+					],
+					[
+						["","D","R","","D",""],
+						["D","R","RD*","D","R","D*"],
+						["D*","D","RD","D","D","D*"],
+						["","D","R","","",""],
+						["D","R","RD*","RD*","R","D*"],
+						["*","","R","","",""]
+					],
+					[
+						["","D","D","","D",""],
+						["RD*","","RD*","RD*","R","D"],
+						["","","D","RD","R","*"],
+						["RD*","R","D","D","","D"],
+						["R","RD","R*","D*","RD","*"],
+						["","","","","",""]
+					],
+					[
+						["R","","D","","D","D*"],
+						["R","D","RD*","R","R*",""],
+						["R","D*","R","RD","D",""],
+						["","RD*","","D","RD*",""],
+						["R","D","D","R","",""],
+						["","","R*","R","R*",""]
+					],
+					[
+						["D","D","","RD*","","D*"],
+						["D*","R","D","D","RD",""],
+						["","D","RD","R*","",""],
+						["R","D*","R","R","RD*",""],
+						["R","D","R","R","",""],
+						["","R*","","R","R","*"]
+					],
+					[
+						["D","","D","RD*","R","*"],
+						["","D","RD","D","D",""],
+						["D","RD*","R*","D","R",""],
+						["","D","RD","","R",""],
+						["R","","RD*","R","RD*",""],
+						["","R","*","","R","*"]
+					],
+					[
+						["D","","D","D","RD*","*"],
+						["R*","R","","RD*R","D",""],
+						["D","RD","D","D","D","D"],
+						["","R","","D","D",""],
+						["R","RD*","D","RD*","D",""],
+						["","","","","R*","*"]
+					],
+					[
+						["","","R","R*","R",""],
+						["R","R","R","R","D",""],
+						["RD*","RD","RD*","R","D*",""],
+						["D*","D","D","","RD",""],
+						["D","D","R","RD","R*",""],
+						["*","","","","R","*"]
+					],
+					[
+						["D","D","","D","","D*"],
+						["","RD*","R","R*","RD",""],
+						["","RD","RD*","","D",""],
+						["R","D*","D","RD","R*","D"],
+						["","R","","D","RD","*"],
+						["R*","R","","","",""]
+					],
+					[
+						["R","R*","D","","D","D*"],
+						["","RD","R","R","","D*"],
+						["","D","RD","D","RD",""],
+						["RD*","","R","D*","","D"],
+						["","RD","","RD","R","*"],
+						["R*","*","R","","",""]
+					],
+					[
+						["","","D","D","RD*",""],
+						["R","R","D*","D","","D"],
+						["RD*","RD","","RD*","R","*"],
+						["","","RD","R*","D","D"],
+						["R","R","","","R","*"],
+						["R","R*","R","R","",""]
+					]
+					]
+
+					function makeWall (start, end, svg) {
+						$SVG("<line>")
+						.attr("x1", start.x)
+						.attr("y1", start.y)
+						.attr("x2", end.x)
+						.attr("y2", end.y)
+						.attr("stroke", "black")
+						.attr("stroke-width", 5)
+						.attr("stroke-linecap", "round")
+						.appendTo(svg)
+					}
+
+					const makeSVGBase = (mazeIndex) => {
+						const cellSize = dimensions / 6;
+
+						for(var i = 0; i < divs.length; i++){
+							let baseSVG = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${dimension} ${dimension}'>`;
+							let maze = mazeLayout[mazeIndex];
+
+							$SVG("<rect>")
+								.attr("width", dimension)
+								.attr("height", dimension)
+								.attr("stroke", "black")
+								.attr("stroke-width", 10)
+								.attr("fill", "none")
+								.appendTo(baseSVG);
+
+							for(let r = 0; r < 6; r++) {
+								for(let c = 0; c < 6; c++) {
+									const tl = {x: c * cellSize, y: r * cellSize};
+									const tr = {x: (c+1) * cellSize, y: r * cellSize};
+									const bl = {x: c * cellSize, y: (r+1) * cellSize};
+									const br = {x: (c+1) * cellSize, y: (r+1) * cellSize};
+
+									if(maze[r][c].includes("R")) {
+										makeLine(tr, br, baseSVG)
+									}
+									if(maze[r][c].includes("D")) {
+										makeLine(bl, br, baseSVG)
+									}
+
+									if(maze[r][c].includes("*")) {
+
+										const BELL_PATH = "M0,0h-24v-340c0,-141.1,-104.3,-257.8,-240,-277.2v-38.8c0,-22.1,-17.9,-40,-40,-40s-40,17.9,-40,40v38.8c-135.7,19.4,-240,136.1,-240,277.2v340h-24c-17.7,0,-32,14.3,-32,32v32c0,4.4,3.6,8,8,8h216c0,61.8,50.2,112,112,112s112,-50.2,112,-112h216c4.4,0,8,-3.6,8,-8v-32c0,-17.7,-14.3,-32,-32,-32zm-304,120c-26.5,0,-48,-21.5,-48,-48h96c0,26.5,-21.5,48,-48,48z"
+										
+										const group = $SVG("<g>")
+										.attr("transform", `translate(${c * cellSize}, ${r * cellSize})`)
+										.appendTo(baseSVG);
+
+										$SVG("<path>")
+											.attr("d", BELL_PATH)
+											.attr("transform", `translate(${cellSize / 2}, ${cellSize / 2}) scale(${scale})`)
+											.appendTo(group);
+										$SVG("<path>")
+											.attr("d", BELL_PATH)
+											.appendTo(baseSVG);
+									}
+								}
+							}
+						}
+						return baseSVG
+					}
+					module.mazeSVGs = [];
+					return true;
+				}
+			},
+			{ regex: /.+/ }
+		]
+	},
+	{
 		displayName: "Wavetapping",
 		moduleID: "Wavetapping",
 		loggingTag: "Wavetapping",
