@@ -23851,9 +23851,9 @@ let parseData = [
 				regex: /Starting in maze (\d+) at ([A-F][1-6])/,
 				handler: function (match, module) {
 
-					module.pages = [{label: `Maze ${match[1]}`}];
-					module.currentMaze = Number.parseInt(match[1]);
-					module.currentPath = [match[2]];
+					module.pages = [];
+					let currentMaze = Number.parseInt(match[1]);
+					module.currentPath = [];
 					module.dimension = 300;
 					const mazeLayout = [
 						[
@@ -23963,7 +23963,7 @@ let parseData = [
 					]
 
 					module.makeLine = (start, end) => {
-						let line = 
+						let line =
 						$SVG("<line>")
 						.attr("x1", start.x)
 						.attr("y1", start.y)
@@ -23972,16 +23972,40 @@ let parseData = [
 
 						return line;
 					}
-					module.convertBattleshipCoords = (coords) => {
-						const cellWidth = module.dimension / 6;
-						return {row: ("ABCDEF".indexOf(coords[0]) * cellWidth) + cellWidth / 2, 
-							    col: ((Number.parseInt(coords[1]) - 1) * cellWidth) + cellWidth / 2}
+
+					module.convertBattleshipCoords = (coord) => {
+						return {
+								row: (Number.parseInt(coord[1]) - 1),
+								col: "ABCDEF".indexOf(coord[0]),
+							}
 					} 
+
+					module.applyMazePosition = ({row, col}) => {
+						const cellWidth = module.dimension / 6;
+						return {row: (row * cellWidth) + cellWidth / 2, 
+							    col: (col * cellWidth) + cellWidth / 2}
+					}
+
+					module.getNewMaze = (newMazeIndex, startingBattleshipCoord) => {
+						//get the new svg
+						module.currentSVG = module.mazeSVGs[newMazeIndex].clone();
+
+						//get the new page
+						module.pages.push({label: `Maze ${newMazeIndex}`, obj: module.currentSVG});
+
+						//draw circle to mark starting location
+						let startingPosition = module.convertBattleshipCoords(startingBattleshipCoord)
+						let convertedPosition = module.applyMazePosition(startingPosition)
+						module.currentPath.push(startingPosition);
+						drawCircle(convertedPosition.row, convertedPosition.col, "red", module.currentSVG);
+						module.push({obj: module.currentSVG})
+						
+					}
 
 					function drawCircle(row, col, color, svg) {
 						$SVG("<circle>")
-							.attr("cx", row)
-							.attr("cy", col)
+							.attr("cx", col)
+							.attr("cy", row)
 							.attr("r", 10)
 							.attr("fill", color)
 							.appendTo(svg);
@@ -24071,12 +24095,9 @@ let parseData = [
 
 						return baseSVG
 					}
+					
 					module.mazeSVGs = mazeLayout.map((_, i) => makeSVGBase(i));
-					module.currentSVG = module.mazeSVGs[module.currentMaze].clone();
-
-					//draw circle to mark starting location
-					let startingPosition = module.convertBattleshipCoords(match[2])
-					drawCircle(startingPosition.row, startingPosition.col, "red", module.currentSVG);
+					module.getNewMaze(Number.parseInt(match[1]), match[2])
 					module.push({obj: module.currentSVG})
 					return true;
 				}
@@ -24084,18 +24105,74 @@ let parseData = [
 			{
 				regex: /Local (?:left|right|up|down|front|back) pressed which equates to global (left|right|up|down|front|back)/,
 				handler: function (match, module) {
+
+					function getNewPosition()
+					{
+						//calculate the new position
+						const lastPos = module.currentPath[module.currentPath.length - 1];
+						switch(match[1])
+						{
+							case "left":
+								return {row: lastPos.row, col: lastPos.col - 1};
+							break;
+							case "right":
+								return {row: lastPos.row, col: lastPos.col + 1};
+							break;
+							case "up":
+								return {row: lastPos.row - 1, col: lastPos.col};
+							break;
+							case "down":
+								return {row: lastPos.row + 1, col: lastPos.col};
+							break;
+						}
+					}
+
+					//todo if this moves causes a strike, move on
+					let nextLine = readTaggedLine();
+
+					if(nextLine.includes("Strike!"))
+					{
+						linen--;
+						return false;
+					}
+
 					//todo if global back, make a new page/path for the new maze
 					if(match[1] == "back")
 					{
-						
+						const regex = /Now in maze (\d+)/;
+						let found;
+						 
+						do
+						{
+							nextLine = readTaggedLine();
+							found = nextLine.match(regex);
+						}
+						while(found == null)
+						const lastPos = module.currentPath[module.currentPath.length - 1];
+						module.getNewMaze(Number.parseInt(found[1]), `${"ABCDEF"[lastPos.row]}${Number.parseInt([lastPos.col] + 1)}`);
+						module.push({obj: module.currentSVG})
 					}
 
-					//
-					//todo if not global back or front draw line on current svg
+					//todo if not global front, draw line on current svg
 					else if(match[1] != "front")
 					{
-						const lastPosition = module.convertBattleshipCoords()
-						module.currentPath.push()
+						//calculate the new position
+						const lastPos = module.currentPath[module.currentPath.length - 1];
+						let newPos = getNewPosition();
+
+						module.currentPath.push(newPos);
+
+						//todo draw a line from the old position to the new one
+						let start = module.applyMazePosition(lastPos);
+						let end = module.applyMazePosition(newPos);
+
+						let line = module.makeLine({x: start.col, y: start.row}, {x: end.col, y: end.row});
+						line
+						.attr("stroke", "red")
+						.attr("stroke-width", 5)
+						.attr("stroke-linecap", "round")
+						.appendTo(module.currentSVG)
+
 					}
 					return true;
 				}
