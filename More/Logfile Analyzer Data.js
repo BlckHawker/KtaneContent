@@ -23846,124 +23846,150 @@ let parseData = [
 		moduleID: "wanderlust",
 		loggingTag: "Wanderlust",
 		matches: [
+			// todo figure out when drawing current path. BC the commands can stop at some point
 			{
 				regex: /Starting in maze (\d+) at ([A-F][1-6])/,
 				handler: function (match, module) {
 
-					const dimension = 300;
+					module.pages = [{label: `Maze ${match[1]}`}];
+					module.currentMaze = Number.parseInt(match[1]);
+					module.currentPath = [match[2]];
+					module.dimension = 300;
 					const mazeLayout = [
-					[
-						["R","R*","D","","D","D*"],
-						["R","R","","RD","D*",""],
-						["","RD","D","D","RD*",""],
-						["R","D","","","RD",""],
-						["D","RD*","R","RD*","",""],
-						["*","","R","","R","*"]
-					],
-					[
-						["D","D","R","D*","D",""],
-						["R*","D*","R","","RD*",""],
-						["","RD","D","RD","D",""],
-						["R","D*","D","","R",""],
-						["","D","RD*","R","R",""],
-						["","R","","R","R*","*"]
-					],
-					[
-						["","D","","RD*","D",""],
-						["R","R*","R","","",""],
-						["RD*","R","RD","RD*","R","D*"],
-						["","D","RD","R*","D","D"],
-						["","R","","D","D",""],
-						["R","R*","","","R*",""]
-					],
-					[
-						["","D","R","","D",""],
-						["D","R","RD*","D","R","D*"],
-						["D*","D","RD","D","D","D*"],
-						["","D","R","","",""],
-						["D","R","RD*","RD*","R","D*"],
-						["*","","R","","",""]
-					],
-					[
-						["","D","D","","D",""],
-						["RD*","","RD*","RD*","R","D"],
-						["","","D","RD","R","*"],
-						["RD*","R","D","D","","D"],
-						["R","RD","R*","D*","RD","*"],
-						["","","","","",""]
-					],
-					[
-						["R","","D","","D","D*"],
-						["R","D","RD*","R","R*",""],
-						["R","D*","R","RD","D",""],
-						["","RD*","","D","RD*",""],
-						["R","D","D","R","",""],
-						["","","R*","R","R*",""]
-					],
-					[
-						["D","D","","RD*","","D*"],
-						["D*","R","D","D","RD",""],
-						["","D","RD","R*","",""],
-						["R","D*","R","R","RD*",""],
-						["R","D","R","R","",""],
-						["","R*","","R","R","*"]
-					],
-					[
-						["D","","D","RD*","R","*"],
-						["","D","RD","D","D",""],
-						["D","RD*","R*","D","R",""],
-						["","D","RD","","R",""],
-						["R","","RD*","R","RD*",""],
-						["","R","*","","R","*"]
-					],
-					[
-						["D","","D","D","RD*","*"],
-						["R*","R","","RD*R","D",""],
-						["D","RD","D","D","D","D"],
-						["","R","","D","D",""],
-						["R","RD*","D","RD*","D",""],
-						["","","","","R*","*"]
-					],
-					[
-						["","","R","R*","R",""],
-						["R","R","R","R","D",""],
-						["RD*","RD","RD*","R","D*",""],
-						["D*","D","D","","RD",""],
-						["D","D","R","RD","R*",""],
-						["*","","","","R","*"]
-					],
-					[
-						["D","D","","D","","D*"],
-						["","RD*","R","R*","RD",""],
-						["","RD","RD*","","D",""],
-						["R","D*","D","RD","R*","D"],
-						["","R","","D","RD","*"],
-						["R*","R","","","",""]
-					],
-					[
-						["R","R*","D","","D","D*"],
-						["","RD","R","R","","D*"],
-						["","D","RD","D","RD",""],
-						["RD*","","R","D*","","D"],
-						["","RD","","RD","R","*"],
-						["R*","*","R","","",""]
-					],
-					[
-						["","","D","D","RD*",""],
-						["R","R","D*","D","","D"],
-						["RD*","RD","","RD*","R","*"],
-						["","","RD","R*","D","D"],
-						["R","R","","","R","*"],
-						["R","R*","R","R","",""]
-					]
+						[
+							["R","R*","D","","D","D*"],
+							["R","R","","RD","D*",""],
+							["","RD","D","D","RD*",""],
+							["R","D","","","RD",""],
+							["D","RD*","R","RD*","",""],
+							["*","","R","","R","*"]
+						],
+						[
+							["D","D","R","D*","D",""],
+							["R*","D*","R","","RD*",""],
+							["","RD","D","RD","D",""],
+							["R","D*","D","","R",""],
+							["","D","RD*","R","R",""],
+							["","R","","R","R*","*"]
+						],
+						[
+							["","D","","RD*","D",""],
+							["R","R*","R","","",""],
+							["RD*","R","RD","RD*","R","D*"],
+							["","D","RD","R*","D","D"],
+							["","R","","D","D",""],
+							["R","R*","","","R*",""]
+						],
+						[
+							["","D","R","","D",""],
+							["D","R","RD*","D","R","D*"],
+							["D*","D","RD","D","D","D*"],
+							["","D","R","","",""],
+							["D","R","RD*","RD*","R","D*"],
+							["*","","R","","",""]
+						],
+						[
+							["","D","D","","D",""],
+							["RD*","","RD*","RD*","R","D"],
+							["","","D","RD","R","*"],
+							["RD*","R","D","D","","D"],
+							["R","RD","R*","D*","RD","*"],
+							["","","","","",""]
+						],
+						[
+							["R","","D","","D","D*"],
+							["R","D","RD*","R","R*",""],
+							["R","D*","R","RD","D",""],
+							["","RD*","","D","RD*",""],
+							["R","D","D","R","",""],
+							["","","R*","R","R*",""]
+						],
+						[
+							["D","D","","RD*","","D*"],
+							["D*","R","D","D","RD",""],
+							["","D","RD","R*","",""],
+							["R","D*","R","R","RD*",""],
+							["R","D","R","R","",""],
+							["","R*","","R","R","*"]
+						],
+						[
+							["D","","D","RD*","R","*"],
+							["","D","RD","D","D",""],
+							["D","RD*","R*","D","R",""],
+							["","D","RD","","R",""],
+							["R","","RD*","R","RD*",""],
+							["","R","*","","R","*"]
+						],
+						[
+							["D","","D","D","RD*","*"],
+							["R*","R","","RD*R","D",""],
+							["D","RD","D","D","D","D"],
+							["","R","","D","D",""],
+							["R","RD*","D","RD*","D",""],
+							["","","","","R*","*"]
+						],
+						[
+							["","","R","R*","R",""],
+							["R","R","R","R","D",""],
+							["RD*","RD","RD*","R","D*",""],
+							["D*","D","D","","RD",""],
+							["D","D","R","RD","R*",""],
+							["*","","","","R","*"]
+						],
+						[
+							["D","D","","D","","D*"],
+							["","RD*","R","R*","RD",""],
+							["","RD","RD*","","D",""],
+							["R","D*","D","RD","R*","D"],
+							["","R","","D","RD","*"],
+							["R*","R","","","",""]
+						],
+						[
+							["R","R*","D","","D","D*"],
+							["","RD","R","R","","D*"],
+							["","D","RD","D","RD",""],
+							["RD*","","R","D*","","D"],
+							["","RD","","RD","R","*"],
+							["R*","*","R","","",""]
+						],
+						[
+							["","","D","D","RD*",""],
+							["R","R","D*","D","","D"],
+							["RD*","RD","","RD*","R","*"],
+							["","","RD","R*","D","D"],
+							["R","R","","","R","*"],
+							["R","R*","R","R","",""]
+						]
 					]
 
-					function makeWall (start, end, svg) {
+					module.makeLine = (start, end) => {
+						let line = 
 						$SVG("<line>")
 						.attr("x1", start.x)
 						.attr("y1", start.y)
 						.attr("x2", end.x)
 						.attr("y2", end.y)
+
+						return line;
+					}
+					module.convertBattleshipCoords = (coords) => {
+						const cellWidth = module.dimension / 6;
+						return {row: ("ABCDEF".indexOf(coords[0]) * cellWidth) + cellWidth / 2, 
+							    col: ((Number.parseInt(coords[1]) - 1) * cellWidth) + cellWidth / 2}
+					} 
+
+					function drawCircle(row, col, color, svg) {
+						$SVG("<circle>")
+							.attr("cx", row)
+							.attr("cy", col)
+							.attr("r", 10)
+							.attr("fill", color)
+							.appendTo(svg);
+					}
+
+					function makeWall (start, end, svg) {
+						let line = module.makeLine(start, end);
+						line
 						.attr("stroke", "black")
 						.attr("stroke-width", 5)
 						.attr("stroke-linecap", "round")
@@ -23979,7 +24005,7 @@ let parseData = [
 						const BELL_VIEWBOX_HEIGHT = 818;
 
 						// padding as percentage of cell size
-						const paddingX = cellSize * 0;
+						const paddingX = cellSize * -0.02;
 						const paddingY = cellSize * 0.05;
 
 						//find the size of cell with padding
@@ -24010,14 +24036,14 @@ let parseData = [
 					}
 
 					function makeSVGBase(mazeIndex) {
-						const cellSize = dimension / 6;
+						const cellSize = module.dimension / 6;
 
-						let baseSVG = $(`<svg xmlns='http://www.w3.org/2000/svg' viewbox='0 0 ${dimension} ${dimension}'>`)
+						let baseSVG = $(`<svg xmlns='http://www.w3.org/2000/svg' viewbox='0 0 ${module.dimension} ${module.dimension}'>`)
 						let maze = mazeLayout[mazeIndex];
 
 						$SVG("<rect>")
-							.attr("width", dimension)
-							.attr("height", dimension)
+							.attr("width", module.dimension)
+							.attr("height", module.dimension)
 							.attr("stroke", "black")
 							.attr("stroke-width", 10)
 							.attr("fill", "none")
@@ -24046,10 +24072,34 @@ let parseData = [
 						return baseSVG
 					}
 					module.mazeSVGs = mazeLayout.map((_, i) => makeSVGBase(i));
+					module.currentSVG = module.mazeSVGs[module.currentMaze].clone();
+
+					//draw circle to mark starting location
+					let startingPosition = module.convertBattleshipCoords(match[2])
+					drawCircle(startingPosition.row, startingPosition.col, "red", module.currentSVG);
+					module.push({obj: module.currentSVG})
 					return true;
 				}
 			},
-			//{ regex: /.+/ }
+			{
+				regex: /Local (?:left|right|up|down|front|back) pressed which equates to global (left|right|up|down|front|back)/,
+				handler: function (match, module) {
+					//todo if global back, make a new page/path for the new maze
+					if(match[1] == "back")
+					{
+						
+					}
+
+					//
+					//todo if not global back or front draw line on current svg
+					else if(match[1] != "front")
+					{
+						const lastPosition = module.convertBattleshipCoords()
+						module.currentPath.push()
+					}
+					return true;
+				}
+			}
 		]
 	},
 	{
