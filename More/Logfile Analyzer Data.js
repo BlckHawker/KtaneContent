@@ -24148,8 +24148,10 @@ let parseData = [
 							found = nextLine.match(regex);
 						}
 						while(found == null)
+						console.log(Number.parseInt(found[1]))
 						const lastPos = module.currentPath[module.currentPath.length - 1];
 						module.getNewMaze(Number.parseInt(found[1]), `${"ABCDEF"[lastPos.row]}${Number.parseInt([lastPos.col] + 1)}`);
+
 						module.push({obj: module.currentSVG})
 					}
 
