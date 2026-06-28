@@ -23970,61 +23970,86 @@ let parseData = [
 						.appendTo(svg)
 					}
 
-					const makeSVGBase = (mazeIndex) => {
-						const cellSize = dimensions / 6;
+					function makeBell(row, col, cellSize, svg)
+					{
+						const BELL_PATH = "M0,0h-24v-340c0,-141.1,-104.3,-257.8,-240,-277.2v-38.8c0,-22.1,-17.9,-40,-40,-40s-40,17.9,-40,40v38.8c-135.7,19.4,-240,136.1,-240,277.2v340h-24c-17.7,0,-32,14.3,-32,32v32c0,4.4,3.6,8,8,8h216c0,61.8,50.2,112,112,112s112,-50.2,112,-112h216c4.4,0,8,-3.6,8,-8v-32c0,-17.7,-14.3,-32,-32,-32zm-304,120c-26.5,0,-48,-21.5,-48,-48h96c0,26.5,-21.5,48,-48,48z";
 
-						for(var i = 0; i < divs.length; i++){
-							let baseSVG = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${dimension} ${dimension}'>`;
-							let maze = mazeLayout[mazeIndex];
+						//viewbox dimension for original bell path 
+						const BELL_VIEWBOX_WIDTH = 624;
+						const BELL_VIEWBOX_HEIGHT = 818;
 
-							$SVG("<rect>")
-								.attr("width", dimension)
-								.attr("height", dimension)
-								.attr("stroke", "black")
-								.attr("stroke-width", 10)
-								.attr("fill", "none")
-								.appendTo(baseSVG);
+						// padding as percentage of cell size
+						const paddingX = cellSize * 0;
+						const paddingY = cellSize * 0.05;
 
-							for(let r = 0; r < 6; r++) {
-								for(let c = 0; c < 6; c++) {
-									const tl = {x: c * cellSize, y: r * cellSize};
-									const tr = {x: (c+1) * cellSize, y: r * cellSize};
-									const bl = {x: c * cellSize, y: (r+1) * cellSize};
-									const br = {x: (c+1) * cellSize, y: (r+1) * cellSize};
+						//find the size of cell with padding
+						const innerSize = cellSize - Math.max(paddingX * 2, paddingY * 2);
+						
+						// find the position the cell needs to be at
+						const x = (col + 1) * cellSize + paddingX;
+						const y = (row + 1) * cellSize + paddingY;
 
-									if(maze[r][c].includes("R")) {
-										makeLine(tr, br, baseSVG)
-									}
-									if(maze[r][c].includes("D")) {
-										makeLine(bl, br, baseSVG)
-									}
 
-									if(maze[r][c].includes("*")) {
+						// scale to fit cell
+						const scale = innerSize / BELL_VIEWBOX_HEIGHT * 0.7;
 
-										const BELL_PATH = "M0,0h-24v-340c0,-141.1,-104.3,-257.8,-240,-277.2v-38.8c0,-22.1,-17.9,-40,-40,-40s-40,17.9,-40,40v38.8c-135.7,19.4,-240,136.1,-240,277.2v340h-24c-17.7,0,-32,14.3,-32,32v32c0,4.4,3.6,8,8,8h216c0,61.8,50.2,112,112,112s112,-50.2,112,-112h216c4.4,0,8,-3.6,8,-8v-32c0,-17.7,-14.3,-32,-32,-32zm-304,120c-26.5,0,-48,-21.5,-48,-48h96c0,26.5,-21.5,48,-48,48z"
-										
-										const group = $SVG("<g>")
-										.attr("transform", `translate(${c * cellSize}, ${r * cellSize})`)
-										.appendTo(baseSVG);
+						//Order of transfomration
+						//1. Set the bell to the center of its origin
+						//2. Scale it
+						//3. Move to center of cell
+						const g = $SVG("<g>")
+							.attr("transform", `translate(${x},${y}) scale(${scale})`);
 
-										$SVG("<path>")
-											.attr("d", BELL_PATH)
-											.attr("transform", `translate(${cellSize / 2}, ${cellSize / 2}) scale(${scale})`)
-											.appendTo(group);
-										$SVG("<path>")
-											.attr("d", BELL_PATH)
-											.appendTo(baseSVG);
-									}
+						$SVG("<path>")
+							.attr("d", BELL_PATH)
+							.attr("fill", "black")
+							.attr("transform", `translate(${-BELL_VIEWBOX_WIDTH/2},${-BELL_VIEWBOX_HEIGHT/2})`)
+							.appendTo(g);
+
+						g.appendTo(svg);
+					}
+
+					function makeSVGBase(mazeIndex) {
+						const cellSize = dimension / 6;
+
+						let baseSVG = $(`<svg xmlns='http://www.w3.org/2000/svg' viewbox='0 0 ${dimension} ${dimension}'>`)
+						let maze = mazeLayout[mazeIndex];
+
+						$SVG("<rect>")
+							.attr("width", dimension)
+							.attr("height", dimension)
+							.attr("stroke", "black")
+							.attr("stroke-width", 10)
+							.attr("fill", "none")
+							.appendTo(baseSVG);
+
+						for(let r = 0; r < 6; r++) {
+							for(let c = 0; c < 6; c++) {
+								const tl = {x: c * cellSize, y: r * cellSize};
+								const tr = {x: (c+1) * cellSize, y: r * cellSize};
+								const bl = {x: c * cellSize, y: (r+1) * cellSize};
+								const br = {x: (c+1) * cellSize, y: (r+1) * cellSize};
+
+								if(maze[r][c].includes("R")) {
+									makeWall(tr, br, baseSVG)
+								}
+								if(maze[r][c].includes("D")) {
+									makeWall(bl, br, baseSVG)
+								}
+
+								if(maze[r][c].includes("*")) {
+									makeBell(r, c, cellSize, baseSVG)
 								}
 							}
 						}
+
 						return baseSVG
 					}
-					module.mazeSVGs = [];
+					module.mazeSVGs = mazeLayout.map((_, i) => makeSVGBase(i));
 					return true;
 				}
 			},
-			{ regex: /.+/ }
+			//{ regex: /.+/ }
 		]
 	},
 	{
