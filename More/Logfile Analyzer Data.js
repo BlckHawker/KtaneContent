@@ -23852,7 +23852,7 @@ let parseData = [
 				handler: function (match, module) {
 
 					module.pages = [];
-					let currentMaze = Number.parseInt(match[1]);
+					module.currentMaze = Number.parseInt(match[1]);
 					module.currentPath = [];
 					module.dimension = 300;
 					const mazeLayout = [
@@ -23997,9 +23997,7 @@ let parseData = [
 						let startingPosition = module.convertBattleshipCoords(startingBattleshipCoord)
 						let convertedPosition = module.applyMazePosition(startingPosition)
 						module.currentPath.push(startingPosition);
-						drawCircle(convertedPosition.row, convertedPosition.col, "red", module.currentSVG);
-						module.push({obj: module.currentSVG})
-						
+						drawCircle(convertedPosition.row, convertedPosition.col, "red", module.currentSVG);						
 					}
 
 					function drawCircle(row, col, color, svg) {
@@ -24097,8 +24095,7 @@ let parseData = [
 					}
 					
 					module.mazeSVGs = mazeLayout.map((_, i) => makeSVGBase(i));
-					module.getNewMaze(Number.parseInt(match[1]), match[2])
-					module.push({obj: module.currentSVG})
+					module.getNewMaze(Number.parseInt(match[1]), match[2]);
 					return true;
 				}
 			},
@@ -24127,16 +24124,22 @@ let parseData = [
 						}
 					}
 
-					//todo if this moves causes a strike, move on
+					//if this moves causes a strike, move on
 					let nextLine = readTaggedLine();
 
 					if(nextLine.includes("Strike!"))
 					{
-						linen--;
 						return false;
 					}
+					else
+					{
+						linen--;
+					}
 
-					//todo if global back, make a new page/path for the new maze
+					console.log(nextLine);
+
+					//if global back, make a new page/path for the new maze
+					const lastPos = module.currentPath[module.currentPath.length - 1];
 					if(match[1] == "back")
 					{
 						const regex = /Now in maze (\d+)/;
@@ -24145,21 +24148,19 @@ let parseData = [
 						do
 						{
 							nextLine = readTaggedLine();
+							console.log(nextLine)
 							found = nextLine.match(regex);
 						}
 						while(found == null)
-						console.log(Number.parseInt(found[1]))
-						const lastPos = module.currentPath[module.currentPath.length - 1];
-						module.getNewMaze(Number.parseInt(found[1]), `${"ABCDEF"[lastPos.row]}${Number.parseInt([lastPos.col] + 1)}`);
-
-						module.push({obj: module.currentSVG})
+						module.currentMaze = Number.parseInt(found[1])
+						
+						module.getNewMaze(module.currentMaze, `${"ABCDEF"[lastPos.col]}${Number.parseInt([lastPos.row]) + 1}`);
 					}
 
-					//todo if not global front, draw line on current svg
+					//if not global front, draw line on current svg
 					else if(match[1] != "front")
 					{
 						//calculate the new position
-						const lastPos = module.currentPath[module.currentPath.length - 1];
 						let newPos = getNewPosition();
 
 						module.currentPath.push(newPos);
@@ -24176,6 +24177,17 @@ let parseData = [
 						.appendTo(module.currentSVG)
 
 					}
+					return true;
+				}
+			},
+			{
+				regex: /Collected the .+ key/,
+				handler: function (match, module) {
+					console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+					makeCycleableDisplays(module.pages, module)
+					module.pages = [];
+					const lastPos = module.currentPath[module.currentPath.length - 1];
+					module.getNewMaze(module.currentMaze, `${"ABCDEF"[lastPos.col]}${Number.parseInt([lastPos.row]) + 1}`);
 					return true;
 				}
 			}
