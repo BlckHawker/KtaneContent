@@ -23846,15 +23846,49 @@ let parseData = [
 		moduleID: "wanderlust",
 		loggingTag: "Wanderlust",
 		matches: [
-			// todo figure out when drawing current path. BC the commands can stop at some point
+			// todo figure out when drawing current path. BC the commands can stop at some point before teleporting to a different maze
+			{
+				regex: /Status Light is in the .+ corner\./,
+				handler: function(match, module) {
+					module.pages = [];
+					module.getCurrentCubeOrientationLines = () => {
+						return ["Current Cube Orientation", readLines(6)]
+					}
+					module.dimension = 300;
+					module.push(match[0])
+					return true;
+				}
+			},
+			{
+				regex: /Letter Pair \d: .+, .+/,
+				handler: function(match, module) {
+					//read the next two lines as they are children to this one
+					module.push([match[0], readLines(2)]);
+					return true;
+				}
+			},
+			{
+				regex: /Current Cube Orientation/,
+				handler: function(match, module) {
+					//read the next 6 lines as they are children to this one
+					module.push(module.getCurrentCubeOrientationLines());
+					return true;
+				}
+			},
+			{
+				regex: /.+ key is in the maze .+ at .+|Status light was held for 5 seconds\. Resetting the module\.\.\./,
+				handler: function (match, module) {
+					module.push(match[0])
+					return true;
+				}
+			},
 			{
 				regex: /Starting in maze (\d+) at ([A-F][1-6])/,
 				handler: function (match, module) {
 
-					module.pages = [];
 					module.currentMaze = Number.parseInt(match[1]);
 					module.currentPath = [];
-					module.dimension = 300;
+
 					const mazeLayout = [
 						[
 							["R","R*","D","","D","D*"],
@@ -23991,7 +24025,7 @@ let parseData = [
 						module.currentSVG = module.mazeSVGs[newMazeIndex].clone();
 
 						//get the new page
-						module.pages.push({label: `Maze ${newMazeIndex}`, obj: module.currentSVG, messages: ["Test","Test","Test","Test"]});
+						module.pages.push({label: `Maze ${newMazeIndex}`, obj: module.currentSVG, messages: []});
 
 						//draw circle to mark starting location
 						let startingPosition = module.convertBattleshipCoords(startingBattleshipCoord)
@@ -24093,20 +24127,29 @@ let parseData = [
 
 						return baseSVG
 					}
-					
 					module.mazeSVGs = mazeLayout.map((_, i) => makeSVGBase(i));
 					module.getNewMaze(Number.parseInt(match[1]), match[2]);
+					module.pages[module.pages.length - 1].messages.push(match[0]);
+					return true;
+				}
+			},
+			{
+				regex: /One path to the key:/,
+				handler: function (match, module) {
+					let globalPath = readLine();
+					let localPaths = readLine(2).map(l => l.match(/Local path for .+ solved modules: (.+)/)[1]);
+					module.push([match[0], [globalPath, ["Local Paths", [`Even solved modules: ${localPaths[0]}`, `Odd solved modules: ${localPaths[1]}`]]]])
 					return true;
 				}
 			},
 			{
 				regex: /Local (?:left|right|up|down|front|back) pressed which equates to global (left|right|up|down|front|back)/,
 				handler: function (match, module) {
-
 					function getNewPosition()
 					{
 						//calculate the new position
 						const lastPos = module.currentPath[module.currentPath.length - 1];
+						let nextPos;
 						switch(match[1])
 						{
 							case "left":
@@ -24123,9 +24166,12 @@ let parseData = [
 							break;
 						}
 					}
+					let pageIndex = module.pages.length - 1;
+					module.pages[pageIndex].messages.push(match[0]);
+					const lastPos = module.currentPath[module.currentPath.length - 1];
 
 					//if this moves causes a strike, move on
-					let nextLine = readTaggedLine();
+					let nextLine = readLine();
 
 					if(nextLine.includes("Strike!"))
 					{
@@ -24139,25 +24185,45 @@ let parseData = [
 					console.log(nextLine);
 
 					//if global back, make a new page/path for the new maze
-					const lastPos = module.currentPath[module.currentPath.length - 1];
 					if(match[1] == "back")
 					{
+
+						//Rang the bell. This is the 1st time
+                        //Second to last local input was front
+                        //The bell rang is in row 5 which corresponds to back
+                        //Rotating LF and GB
+                        //Number of solved mods: 0
+                        //Current Cube Orientation
+
 						const regex = /Now in maze (\d+)/;
 						let found;
-						 
-						do
+						let pageIndex = module.pages.length - 1;
+						nextLine = readLine();
+						while(found == null)
 						{
-							nextLine = readTaggedLine();
-							console.log(nextLine)
+							let currentCubeLog = (line) => {return line == "Current Cube Orientation"};
+
+							if(!currentCubeLog(nextLine)) {
+								module.pages[pageIndex].messages.push(nextLine);
+							}
+
+							
+							nextLine = readLine();
+
+							//if next line is current cube orientation, print next lines
+							//todo fix this to work within maze dropdown (maybe it's make cycleable display problem)
+							if(currentCubeLog(nextLine)) {
+								module.pages[pageIndex].messages.push(module.getCurrentCubeOrientationLines());
+							}
+
 							found = nextLine.match(regex);
 						}
-						while(found == null)
+
 						module.currentMaze = Number.parseInt(found[1])
-						
 						module.getNewMaze(module.currentMaze, `${"ABCDEF"[lastPos.col]}${Number.parseInt([lastPos.row]) + 1}`);
 					}
 
-					//if not global front, draw line on current svg
+					//if not global front or back, draw line on current svg
 					else if(match[1] != "front")
 					{
 						//calculate the new position
@@ -24165,10 +24231,9 @@ let parseData = [
 
 						module.currentPath.push(newPos);
 
-						//todo draw a line from the old position to the new one
+						//draw a line from the old position to the new one
 						let start = module.applyMazePosition(lastPos);
 						let end = module.applyMazePosition(newPos);
-
 						let line = module.makeLine({x: start.col, y: start.row}, {x: end.col, y: end.row});
 						line
 						.attr("stroke", "red")
@@ -24178,6 +24243,13 @@ let parseData = [
 
 					}
 					return true;
+				}
+			},
+			{
+				regex: /Rang the bell\. This is the .+ time/,
+				handler: function (match, module) {
+					let pageIndex = module.pages.length - 1;
+					module.pages[pageIndex].messages.push(match[0]);
 				}
 			},
 			{
