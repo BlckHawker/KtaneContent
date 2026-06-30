@@ -23876,7 +23876,7 @@ let parseData = [
 				}
 			},
 			{
-				regex: /.+ key is in the maze .+ at .+|Status light was held for 5 seconds\. Resetting the module\.\.\./,
+				regex: /.+ key is in the maze .+ at .+|Status light was held for 5 seconds\. Resetting the module\.\.\.|Going back to starting position which is in maze .+ .+/,
 				handler: function (match, module) {
 					module.push(match[0])
 					return true;
@@ -24134,9 +24134,9 @@ let parseData = [
 				}
 			},
 			{
-				regex: /One path to the key:/,
+				regex: /One path to the key:|One path to the start:/,
 				handler: function (match, module) {
-					let globalPath = readLine();
+					let globalPath = module.readLine();
 					let localPaths = readLines(2).map(l => l.match(/Local path for .+ solved modules: (.+)/)[1]);
 					module.push([match[0], [globalPath, ["Local Paths", [`Even solved modules: ${localPaths[0]}`, `Odd solved modules: ${localPaths[1]}`]]]])
 					return true;
@@ -24171,7 +24171,7 @@ let parseData = [
 					const lastPos = module.currentPath[module.currentPath.length - 1];
 
 					//if this moves causes a strike, move on
-					let nextLine = readLine();
+					let nextLine = module.readLine();
 
 					if(nextLine.includes("Strike!"))
 					{
@@ -24198,7 +24198,7 @@ let parseData = [
 						const regex = /Now in maze (\d+)/;
 						let found;
 						let pageIndex = module.pages.length - 1;
-						nextLine = readLine();
+						nextLine = module.readLine();
 						while(found == null)
 						{
 							let currentCubeLog = (line) => {return line == "Current Cube Orientation"};
@@ -24208,7 +24208,7 @@ let parseData = [
 							}
 
 							
-							nextLine = readLine();
+							nextLine = module.readLine();
 
 							//if next line is current cube orientation, print next lines
 							//todo fix this to work within maze dropdown (maybe it's make cycleable display problem)
@@ -24255,17 +24255,34 @@ let parseData = [
 				}
 			},
 			{
-				regex: /Collected the .+ key/,
+				regex: /Collected the (.+) key/,
 				handler: function (match, module) {
 					let pageIndex = module.pages.length - 1;
 					module.pages[pageIndex].messages.push(match[0])
 					makeCycleableDisplays(module.pages, module)
-					module.push(readLine())
-					module.push(module.getCurrentCubeOrientationLines());
-					linen++;
+					if(match[1] != "3rd")
+					{
+
+						module.push(module.readLine())
+						module.push(module.getCurrentCubeOrientationLines());
+						linen++;
+					}
+					else
+					{
+						readLines(3).forEach(l => { module.push(l) });
+					}
 					module.pages = [];
 					const lastPos = module.currentPath[module.currentPath.length - 1];
 					module.getNewMaze(module.currentMaze, `${"ABCDEF"[lastPos.col]}${Number.parseInt([lastPos.row]) + 1}`);
+					return true;
+				}
+			},
+			{
+				regex: /Moule Solved/,
+				handler: function (match, module) {
+					let pageIndex = module.pages.length - 1;
+					makeCycleableDisplays(module.pages, module)
+					module.push(match[0])
 					return true;
 				}
 			}
