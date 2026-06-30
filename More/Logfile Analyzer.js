@@ -1389,7 +1389,6 @@ function makeCycleableDisplays(pages, module, loopDisplays = false) {
         bottomDiv.append(pages[curPage].obj);
 
         if(pages[curPage].messages) {
-            console.log("has messages")
             const list = $('<ul>');
             bottomDiv.append(list);
             

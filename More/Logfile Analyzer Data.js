@@ -23853,6 +23853,7 @@ let parseData = [
 					module.pages = [];
 					module.getCurrentCubeOrientationLines = () => { return ["Current Cube Orientation", readLines(6)] }
 					module.readLine = () => { return readLine().replace(/^\[Wanderlust #\d+\]\s*/, "") }
+					module.readLines = (num) => { return readLines(2).map(l => l.replace(/^\[Wanderlust #\d+\]\s*/, "")) }
 					module.dimension = 300;
 					module.push(match[0])
 					return true;
@@ -23863,7 +23864,7 @@ let parseData = [
 				regex: /Letter Pair \d: .+, .+/,
 				handler: function(match, module) {
 					//read the next two lines as they are children to this one
-					module.push([match[0], readLines(2)]);
+					module.push([match[0], module.readLines(2)]);
 					return true;
 				}
 			},
@@ -24264,12 +24265,12 @@ let parseData = [
 					{
 
 						module.push(module.readLine())
-						module.push(module.getCurrentCubeOrientationLines());
 						linen++;
+						module.push(module.getCurrentCubeOrientationLines());
 					}
 					else
 					{
-						readLines(3).forEach(l => { module.push(l) });
+						module.readLines(3).forEach(l => { module.push(l) });
 					}
 					module.pages = [];
 					const lastPos = module.currentPath[module.currentPath.length - 1];
