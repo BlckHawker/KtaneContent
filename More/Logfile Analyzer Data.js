@@ -23846,17 +23846,17 @@ let parseData = [
 		moduleID: "wanderlust",
 		loggingTag: "Wanderlust",
 		matches: [
-			// todo figure out when drawing current path. BC the commands can stop at some point before teleporting to a different maze
+			// todo figure out when to push the cycable display. BC the commands can stop at some point before pressing global front
 			{
 				regex: /Status Light is in the .+ corner\./,
 				handler: function(match, module) {
 					module.pages = [];
-					module.getCurrentCubeOrientationLines = () => {
-						return ["Current Cube Orientation", readLines(6)]
-					}
+					module.getCurrentCubeOrientationLines = () => { return ["Current Cube Orientation", readLines(6)] }
+					module.readLine = () => { return readLine().replace(/^\[Wanderlust #\d+\]\s*/, "") }
 					module.dimension = 300;
 					module.push(match[0])
 					return true;
+
 				}
 			},
 			{
@@ -24137,7 +24137,7 @@ let parseData = [
 				regex: /One path to the key:/,
 				handler: function (match, module) {
 					let globalPath = readLine();
-					let localPaths = readLine(2).map(l => l.match(/Local path for .+ solved modules: (.+)/)[1]);
+					let localPaths = readLines(2).map(l => l.match(/Local path for .+ solved modules: (.+)/)[1]);
 					module.push([match[0], [globalPath, ["Local Paths", [`Even solved modules: ${localPaths[0]}`, `Odd solved modules: ${localPaths[1]}`]]]])
 					return true;
 				}
@@ -24219,6 +24219,8 @@ let parseData = [
 							found = nextLine.match(regex);
 						}
 
+						module.pages[pageIndex].messages.push(found[0])
+
 						module.currentMaze = Number.parseInt(found[1])
 						module.getNewMaze(module.currentMaze, `${"ABCDEF"[lastPos.col]}${Number.parseInt([lastPos.row]) + 1}`);
 					}
@@ -24255,8 +24257,12 @@ let parseData = [
 			{
 				regex: /Collected the .+ key/,
 				handler: function (match, module) {
-					console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+					let pageIndex = module.pages.length - 1;
+					module.pages[pageIndex].messages.push(match[0])
 					makeCycleableDisplays(module.pages, module)
+					module.push(readLine())
+					module.push(module.getCurrentCubeOrientationLines());
+					linen++;
 					module.pages = [];
 					const lastPos = module.currentPath[module.currentPath.length - 1];
 					module.getNewMaze(module.currentMaze, `${"ABCDEF"[lastPos.col]}${Number.parseInt([lastPos.row]) + 1}`);
