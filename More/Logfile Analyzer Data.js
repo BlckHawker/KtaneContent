@@ -23991,7 +23991,7 @@ let parseData = [
 						module.currentSVG = module.mazeSVGs[newMazeIndex].clone();
 
 						//get the new page
-						module.pages.push({label: `Maze ${newMazeIndex}`, obj: module.currentSVG});
+						module.pages.push({label: `Maze ${newMazeIndex}`, obj: module.currentSVG, messages: ["Test","Test","Test","Test"]});
 
 						//draw circle to mark starting location
 						let startingPosition = module.convertBattleshipCoords(startingBattleshipCoord)
