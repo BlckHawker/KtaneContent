@@ -1389,25 +1389,7 @@ function makeCycleableDisplays(pages, module, loopDisplays = false) {
         bottomDiv.append(pages[curPage].obj);
 
         if(pages[curPage].messages) {
-            const list = $('<ul>');
-            bottomDiv.append(list);
-            
-            for(let message of pages[curPage].messages) {
-                //todo check if this message is an array, if so make message expandable list
-                //todo refactor this to work recusivley to work with a depth of n dropdowns
-                if(Array.isArray(message)) {
-                    let l = $(`<li>`).addClass("expandable").appendTo(list);
-                    let a = $(`<a>`).addClass("expander").appendTo(l);
-                    let ul = $(`ul`).appendTo(l);
-
-                    for(let m of message) {
-                        $(`<li>${m}</li>`).appendTo(ul);
-                    }
-                }
-                else {
-                    $(`<li>${message}</li>`).appendTo(list);
-                }
-            }
+            makeTree(pages[curPage].messages, $("<ul>").appendTo(bottomDiv));
         }
     }
 

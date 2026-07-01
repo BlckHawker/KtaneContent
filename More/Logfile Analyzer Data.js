@@ -23846,16 +23846,24 @@ let parseData = [
 		moduleID: "wanderlust",
 		loggingTag: "Wanderlust",
 		matches: [
-			// todo figure out when to push the cycable display. BC the commands can stop at some point before pressing global front
+			//todo log strikes
 			{
 				regex: /Status Light is in the .+ corner\./,
 				handler: function(match, module) {
 					module.pages = [];
+
+					if(module.attemptNum == undefined) {
+						module.attemptNum = 0;
+					}
+					module.attemptNum++;
+					module.attemptDropdown = [`Attempt ${module.attemptNum}`, []];
+					module.push(module.attemptDropdown);
+					module.attemptNum = 1;
 					module.getCurrentCubeOrientationLines = () => { return ["Current Cube Orientation", readLines(6)] }
 					module.readLine = () => { return readLine().replace(/^\[Wanderlust #\d+\]\s*/, "") }
 					module.readLines = (num) => { return readLines(2).map(l => l.replace(/^\[Wanderlust #\d+\]\s*/, "")) }
 					module.dimension = 300;
-					module.push(match[0])
+					module.attemptDropdown[1].push(match[0])
 					return true;
 
 				}
@@ -23863,8 +23871,7 @@ let parseData = [
 			{
 				regex: /Letter Pair \d: .+, .+/,
 				handler: function(match, module) {
-					//read the next two lines as they are children to this one
-					module.push([match[0], module.readLines(2)]);
+					module.attemptDropdown[1].push([match[0], module.readLines(2)]);
 					return true;
 				}
 			},
@@ -23872,14 +23879,14 @@ let parseData = [
 				regex: /Current Cube Orientation/,
 				handler: function(match, module) {
 					//read the next 6 lines as they are children to this one
-					module.push(module.getCurrentCubeOrientationLines());
+					module.attemptDropdown[1].push(module.getCurrentCubeOrientationLines());
 					return true;
 				}
 			},
 			{
-				regex: /.+ key is in the maze .+ at .+|Status light was held for 5 seconds\. Resetting the module\.\.\.|Going back to starting position which is in maze .+ .+/,
+				regex: /Status light was held for 5 seconds\. Resetting the module\.\.\.|.+ key is in the maze .+ at .+|Going back to starting position which is in maze .+ .+/,
 				handler: function (match, module) {
-					module.push(match[0])
+					module.attemptDropdown[1].push(match[0])
 					return true;
 				}
 			},
@@ -24131,6 +24138,7 @@ let parseData = [
 					module.mazeSVGs = mazeLayout.map((_, i) => makeSVGBase(i));
 					module.getNewMaze(Number.parseInt(match[1]), match[2]);
 					module.pages[module.pages.length - 1].messages.push(match[0]);
+					
 					return true;
 				}
 			},
@@ -24139,7 +24147,8 @@ let parseData = [
 				handler: function (match, module) {
 					let globalPath = module.readLine();
 					let localPaths = readLines(2).map(l => l.match(/Local path for .+ solved modules: (.+)/)[1]);
-					module.push([match[0], [globalPath, ["Local Paths", [`Even solved modules: ${localPaths[0]}`, `Odd solved modules: ${localPaths[1]}`]]]])
+					module.attemptDropdown[1].push([match[0], [globalPath, ["Local Paths", [`Even solved modules: ${localPaths[0]}`, `Odd solved modules: ${localPaths[1]}`]]]])
+					makeCycleableDisplays(module.pages, module.attemptDropdown[1]);
 					return true;
 				}
 			},
@@ -24188,14 +24197,6 @@ let parseData = [
 					//if global back, make a new page/path for the new maze
 					if(match[1] == "back")
 					{
-
-						//Rang the bell. This is the 1st time
-                        //Second to last local input was front
-                        //The bell rang is in row 5 which corresponds to back
-                        //Rotating LF and GB
-                        //Number of solved mods: 0
-                        //Current Cube Orientation
-
 						const regex = /Now in maze (\d+)/;
 						let found;
 						let pageIndex = module.pages.length - 1;
@@ -24260,17 +24261,15 @@ let parseData = [
 				handler: function (match, module) {
 					let pageIndex = module.pages.length - 1;
 					module.pages[pageIndex].messages.push(match[0])
-					makeCycleableDisplays(module.pages, module)
 					if(match[1] != "3rd")
 					{
-
-						module.push(module.readLine())
+						module.attemptDropdown[1].push(module.readLine())
 						linen++;
-						module.push(module.getCurrentCubeOrientationLines());
+						module.attemptDropdown[1].push(module.getCurrentCubeOrientationLines());
 					}
 					else
 					{
-						module.readLines(3).forEach(l => { module.push(l) });
+						module.readLines(3).forEach(l => { module.attemptDropdown[1].push(l) });
 					}
 					module.pages = [];
 					const lastPos = module.currentPath[module.currentPath.length - 1];
@@ -24281,9 +24280,7 @@ let parseData = [
 			{
 				regex: /Moule Solved/,
 				handler: function (match, module) {
-					let pageIndex = module.pages.length - 1;
-					makeCycleableDisplays(module.pages, module)
-					module.push(match[0])
+					module.attemptDropdown[1].push(match[0])
 					return true;
 				}
 			}
