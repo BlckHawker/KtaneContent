@@ -23884,7 +23884,15 @@ let parseData = [
 				}
 			},
 			{
-				regex: /Status light was held for 5 seconds\. Resetting the module\.\.\.|.+ key is in the maze .+ at .+|Going back to starting position which is in maze .+ .+/,
+				regex: /.+ key is in the maze .+ at .+|Going back to starting position which is in maze .+/,
+				handler: function(match, module) {
+					module.keyDropdown = [match[0], []];
+					module.attemptDropdown[1].push(module.keyDropdown);
+					return true;
+				}
+			},
+			{
+				regex: /Status light was held for 5 seconds\. Resetting the module\.\.\./,
 				handler: function (match, module) {
 					module.attemptDropdown[1].push(match[0])
 					return true;
@@ -24102,7 +24110,7 @@ let parseData = [
 					function makeSVGBase(mazeIndex) {
 						const cellSize = module.dimension / 6;
 
-						let baseSVG = $(`<svg xmlns='http://www.w3.org/2000/svg' viewbox='0 0 ${module.dimension} ${module.dimension}'>`)
+						let baseSVG = $(`<svg xmlns='http://www.w3.org/2000/svg' style="width: 80%" viewbox='0 0 ${module.dimension} ${module.dimension}'>`)
 						let maze = mazeLayout[mazeIndex];
 
 						$SVG("<rect>")
@@ -24147,8 +24155,8 @@ let parseData = [
 				handler: function (match, module) {
 					let globalPath = module.readLine();
 					let localPaths = readLines(2).map(l => l.match(/Local path for .+ solved modules: (.+)/)[1]);
-					module.attemptDropdown[1].push([match[0], [globalPath, ["Local Paths", [`Even solved modules: ${localPaths[0]}`, `Odd solved modules: ${localPaths[1]}`]]]])
-					makeCycleableDisplays(module.pages, module.attemptDropdown[1]);
+					module.keyDropdown[1].push([match[0], [globalPath, ["Local Paths", [`Even solved modules: ${localPaths[0]}`, `Odd solved modules: ${localPaths[1]}`]]]])
+					makeCycleableDisplays(module.pages, module.keyDropdown[1]);
 					return true;
 				}
 			},
@@ -24185,14 +24193,13 @@ let parseData = [
 
 					if(nextLine.includes("Strike!"))
 					{
-						return false;
+						module.pages[pageIndex].messages.push(nextLine);
+						return true;
 					}
 					else
 					{
 						linen--;
 					}
-
-					console.log(nextLine);
 
 					//if global back, make a new page/path for the new maze
 					if(match[1] == "back")
