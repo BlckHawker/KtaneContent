@@ -6469,6 +6469,9 @@ let parseData = [
 									case "your right hand":
 										return ["RHandColor"];
 
+									case "your left hand":
+										return ["LHandColor"];
+
 									case "all of your body parts that are touching the chair":
 										const actionBodyPart = {
 											"Sitting": ["buttColor"],
@@ -6506,6 +6509,12 @@ let parseData = [
 								changeObjectChair("Duck", duckChairIndex);
 							}
 
+							const cansObj = {
+									"small": module.modInfo.smallCan,
+									"medium": module.modInfo.medCan,
+									"large": module.modInfo.largeCan
+							}
+
 							//Paint body parts
 							match = line.match(/Now (.+) is\/are (.+)-colored\./)
 							if(match) {
@@ -6523,16 +6532,16 @@ let parseData = [
 							//Paint the watering can
 							match = line.match(/The (.+)-sized watering can is now (.+)-colored\./)
 							if(match) {
-								const cansObj = {
-									"small": module.modInfo.smallCan,
-									"medium": module.modInfo.medCan,
-									"large": module.modInfo.largeCan
-								}
 								const can = cansObj[match[1]]
 								can.can = match[2]
 							}
 
 							//Fill the watering can with paint
+							match = line.match(/The (.+)-sized watering can is now filled with (.+) paint\./)
+							if(match) {
+								const can = cansObj[match[1]]
+								can.content = match[2]
+							}
 
 							//Paint a number on chair
 							match = line.match(/The back of the (.+) now has a (.+)-colored (\d) on it\./)
