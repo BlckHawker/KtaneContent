@@ -6406,7 +6406,6 @@ let parseData = [
 		moduleID: "duckKonundrum",
 		loggingTag: "Duck Konundrum",
 		matches: [
-
 			{
 				regex: /Displaying Stage (\d+)\. It says:/,
 				handler: function (matches, module) {
@@ -6473,10 +6472,14 @@ let parseData = [
 								switch(line) {
 									case "your right hand":
 										return ["RHandColor"];
-
 									case "your left hand":
 										return ["LHandColor"];
-
+									case "both of your hands":
+										return ["LHandColor", "RHandColor"]
+									case "your left foot":
+										return ["LFootColor"]
+									case "your right foot":
+										return ["RFootColor"]
 									case "both of your feet":
 										return ["LFootColor", "RFootColor"]
 
@@ -6554,6 +6557,18 @@ let parseData = [
 							if(match) {
 								const bodyParts = getBodyParts(match[1]);
 								bodyParts.forEach(part => module.modInfo[part] = match[2])
+							}
+
+							//Paint L color
+							match = line.match(/From now on, every time .+ paint an L on your forehead with (.+)\.\"/)
+							if(match) {
+								module.modInfo.LColor = match[1]
+							}
+
+							//increment L count
+							match = line.match(/You paint another L on your forehead\. There are now (\d+) Ls on your forehead./)
+							if(match) {
+								module.modInfo.LCount++
 							}
 
 							//Wash the body parts
@@ -6859,6 +6874,21 @@ let parseData = [
 						makeCycleableDisplays({pages: module.pages, module, loopDisplays: true, fontSize: "14px"});
 					}
 
+					return true;
+				}
+			},
+			{
+				regex: /The question was \'(.+)\'\. The correct answer is (.+)\./,
+				handler: function (matches, module) {
+					module.currentDropdown = [matches[1], [`Correct Answers: ${matches[2]}`]]
+					module.push(module.currentDropdown)
+					return true;
+				}
+			},
+			{
+				regex: /You pressed .+\. That was(?: not)* correct\./,
+				handler: function (matches, module) {
+					module.currentDropdown[1].push(matches.input)
 					return true;
 				}
 			},
