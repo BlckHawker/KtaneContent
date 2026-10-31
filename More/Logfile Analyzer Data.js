@@ -6514,7 +6514,7 @@ let parseData = [
 							let match = line.match(/You should sit on the (armchair|chair \d chairs clockwise from the armchair)\. The duck should sit on the (same chair as you|chair \d chairs clockwise from the armchair)\./)
 							if(match) {
 								const youChairIndex = match[1] == "armchair" ? 0 : module.getChairIndex(match[1])
-								const duckChairIndex =  match[2] == "same chair as you" ? youChairIndex : getChairIndex(match[2])
+								const duckChairIndex =  match[2] == "same chair as you" ? youChairIndex : module.getChairIndex(match[2])
 								changeObjectChair("You", youChairIndex);
 								changeObjectChair("Duck", duckChairIndex);
 							}
@@ -6610,7 +6610,6 @@ let parseData = [
 												break;
 										}
 
-
 										//if undefined, 
 										if(dumpCan == undefined) {
 											//check for a specific can color
@@ -6651,8 +6650,12 @@ let parseData = [
 								chair.bottomColor = match[2];
 							}
 
+							if(line == "The Hokey Pokey rule activated! The seat of the chair 3 chairs clockwise from the armchair is now orange.") {
+								debugger
+							}
+
 							//paint the seat of the chair
-							match = line.match(/The seat of the (.+) is now (.+)-colored\./)
+							match = line.match(/The seat of the (.+) is now (.+)(?:-.+)*\./)
 							if(match) {
 								const index = module.getChairIndex(match[1]);
 								const chair = getChair(index);
